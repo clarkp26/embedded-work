@@ -2,9 +2,9 @@ name: Embedded CI Pipeline
 
 on:
   push:
-    branches: [main]
+    branches: [ main ]
   pull_request:
-    branches: [main]
+    branches: [ main ]
 
 jobs:
   static-analysis:
@@ -21,7 +21,7 @@ jobs:
             --language=c \
             --suppress=missingIncludeSystem \
             --suppress=unusedFunction \
-            embedded-tests/src/
+            src/
 
   unit-tests:
     name: Unit Tests
@@ -34,7 +34,6 @@ jobs:
       - name: Install Ceedling
         run: gem install ceedling
       - name: Run tests
-        working-directory: embedded-tests
         run: ceedling test:all
 
   cross-compile:
@@ -52,7 +51,7 @@ jobs:
             -Wall \
             -Wextra \
             -Werror \
-            -c embedded-tests/src/ring_buffer.c \
+            -c src/ring_buffer.c \
             -o ring_buffer.o
           echo "Cross-compilation successful"
       - name: Report size
