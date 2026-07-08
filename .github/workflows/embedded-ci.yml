@@ -1,0 +1,58 @@
+name: Embedded CI Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  static-analysis:
+    name: Static Analysis
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install cppcheck
+        run: sudo apt-get install -y cppcheck
+      - name: Run cppcheck
+        run: |
+          cppcheck \
+            --enable=all \
+            --language=c \
+            --error-exitcode=1 \
+            --suppress=missingIncludeSystem \
+            src/
+
+  unit-tests:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.2'
+      - name: Install Ceedling
+        run: gem install ceedling
+      - name: Run tests
+        run: ceedling test:all
+
+  cross-compile:
+    name: Cross Compile ARM Cortex-M0+
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install ARM GCC
+        run: sudo apt-get install -y gcc-arm-none-eabi
+      - name: Compile for RP2040
+        run: |
+          arm-none-eabi-gcc \
+            -mcpu=cortex-m0plus \
+            -mthumb \
+            -Wall \
+            -Wextra \
+            -Werror \
+            -c src/ring_buffer.c \
+            -o ring_buffer.o
+          echo "Cross-compilation successful"
+      - name: Report size
+        run: arm-none-eabi-size ring_buffer.o
