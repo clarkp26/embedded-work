@@ -21,7 +21,7 @@ jobs:
             --language=c \
             --suppress=missingIncludeSystem \
             --suppress=unusedFunction \
-            src/
+            embedded-tests/src/
 
   unit-tests:
     name: Unit Tests
@@ -30,10 +30,11 @@ jobs:
       - uses: actions/checkout@v4
       - uses: ruby/setup-ruby@v1
         with:
-          ruby-version: "3.2"
+          ruby-version: '3.2'
       - name: Install Ceedling
         run: gem install ceedling
       - name: Run tests
+        working-directory: embedded-tests
         run: ceedling test:all
 
   cross-compile:
@@ -51,7 +52,7 @@ jobs:
             -Wall \
             -Wextra \
             -Werror \
-            -c src/ring_buffer.c \
+            -c embedded-tests/src/ring_buffer.c \
             -o ring_buffer.o
           echo "Cross-compilation successful"
       - name: Report size
